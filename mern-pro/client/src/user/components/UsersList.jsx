@@ -1,4 +1,3 @@
-/* eslint-disable react/prop-types */
 import UserItem from './UserItem'
 import './UserLists.css'
 
@@ -11,8 +10,8 @@ const UsersList = (props) => {
     )
   }
   return(
-    <ul>
-      {props.items.map((user)=>{
+    <ul className='users-list'>
+      {props.items.map((user)=>(
         <UserItem
         key={user.id}
         id={user.id}
@@ -20,7 +19,7 @@ const UsersList = (props) => {
         name={user.name}
         placeCount={user.placeCount}
         />
-      })}
+      ))}
     </ul>
   )
 }

@@ -1,0 +1,16 @@
+.avatar {
+  width: 100px; /* Define the size explicitly, e.g., 100px */
+  height: 100px; /* Same width and height for a circle */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 50%; /* Make it a perfect circle */
+  overflow: hidden; /* Crop any overflow from the image */
+  background-color: #f0f0f0; /* Optional: fallback background */
+}
+
+.avatar img {
+  width: 100%; /* Ensure the image covers the container */
+  height: 100%; /* Scale proportionally while filling */
+  object-fit: cover; /* Crop the image to cover the container */
+}
