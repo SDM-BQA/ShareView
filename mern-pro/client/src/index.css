@@ -10,33 +10,52 @@ html {
 
 body {
   margin: 0;
-  /* background: #4d4d4d; */
 }
 
+/* Entering the side drawer (from the left) */
 .slide-in-left-enter {
-  transform: translateX(-100%);
-}
-
-.slide-in-left-enter-active {
-  transform: translateX(0);
-  opacity: 1;
-  transition: all 200ms;
-}
-
-.slide-in-left-exit {
-  transform: translateX(0%);
-  opacity: 1;
-}
-
-.slide-in-left-exit-active {
-  transform: translateX(-100%);
+  transform: translateX(-100%);  /* Start from off-screen */
   opacity: 0;
-  transition: all 200ms;
 }
 
-.center {
-  text-align: center;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+/* Entering the side drawer, active state */
+.slide-in-left-enter-active {
+  transform: translateX(0);  /* Slide to visible position */
+  opacity: 1;
+  transition: transform 300ms ease-in-out, opacity 300ms ease-in-out;  /* Smooth transition */
+}
+
+/* Exiting the side drawer (to the left) */
+.slide-in-left-exit {
+  transform: translateX(0);  /* Keep it in place initially */
+  opacity: 1;
+}
+
+/* Exiting the side drawer, active state */
+.slide-in-left-exit-active {
+  transform: translateX(-100%);  /* Slide it off-screen */
+  opacity: 0;
+  transition: transform 300ms ease-in-out, opacity 300ms ease-in-out;
+}
+
+.side-drawer {
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 100;
+  height: 100vh;
+  width: 70%;
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.261);
+}
+
+.backDrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.75);
+  z-index: 50;
+  transition: opacity 300ms ease-in-out;
 }
