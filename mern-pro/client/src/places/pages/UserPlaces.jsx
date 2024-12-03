@@ -1,6 +1,8 @@
 import { useParams } from "react-router-dom/cjs/react-router-dom.min";
 import PlaceList from "../components/PlaceList";
 
+
+
 const UserPlaces = (props) => {
   const DUMMY_PLACES = [
     {
@@ -18,7 +20,7 @@ const UserPlaces = (props) => {
     },
     {
       id: "p2",
-      title: "Tajmahal",
+      title: "Tmahal",
       description: "7 Wonder's of the world",
       imageUrl:
         "https://encrypted-tbn2.gstatic.com/licensed-image?q=tbn:ANd9GcSNULb-ekVZasVOCr_y4-HmpFhcothsGWvWFuYbQxhn_t_DCZxaL14mzAGDmpGcU8q15Ah1bbU7vxclTAVq3Mft-vbTe3uvvIyzqjCCsD8",
