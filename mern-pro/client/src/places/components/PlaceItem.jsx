@@ -1,12 +1,15 @@
 /* eslint-disable react/prop-types */
-import React from "react";
+import React, { useContext } from "react";
 import Card from "../../shared/UIElement/Card";
 import "./PlaceItem.css";
 import Button from "../../shared/FormElements/Button.jsx";
 import { useState } from "react";
 import Modal from "../../shared/UIElement/Modal.jsx";
+import { AuthContext } from "../../shared/context/auth-context.jsx";
 
 const PlaceItem = (props) => {
+  const auth = useContext(AuthContext);
+
   const [showMap, setShowMap] = useState(false);
 
   const [showConfirmedModal, setShowConfirmedModal] = useState(false);
@@ -20,7 +23,7 @@ const PlaceItem = (props) => {
   };
 
   const confirmDeleteHandler = () => {
-    setShowConfirmedModal(false)
+    setShowConfirmedModal(false);
     console.log("DELETING...");
   };
 
@@ -47,8 +50,12 @@ const PlaceItem = (props) => {
         footerClass="place-item_modal-actions"
         footer={
           <React.Fragment>
-            <Button inverse onClick={cancelDeleteHandler}>CANCEL</Button>
-            <Button danger onClick={confirmDeleteHandler}>DELETE</Button>
+            <Button inverse onClick={cancelDeleteHandler}>
+              CANCEL
+            </Button>
+            <Button danger onClick={confirmDeleteHandler}>
+              DELETE
+            </Button>
           </React.Fragment>
         }
       >
@@ -69,8 +76,12 @@ const PlaceItem = (props) => {
             <Button inverse onClick={openMapHandler}>
               VIEW ON MAP
             </Button>
-            <Button to={`places/${props.id}`}>EDIT</Button>
-            <Button danger onClick={showDeletionWarningHandler}>DELETE</Button>
+            {auth.isLoggedIn && <Button to={`places/${props.id}`}>EDIT</Button>}
+            {auth.isLoggedIn && (
+              <Button danger onClick={showDeletionWarningHandler}>
+                DELETE
+              </Button>
+            )}
           </div>
         </Card>
       </li>
