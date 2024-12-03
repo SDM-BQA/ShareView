@@ -9,6 +9,21 @@ import Modal from "../../shared/UIElement/Modal.jsx";
 const PlaceItem = (props) => {
   const [showMap, setShowMap] = useState(false);
 
+  const [showConfirmedModal, setShowConfirmedModal] = useState(false);
+
+  const showDeletionWarningHandler = () => {
+    setShowConfirmedModal(true);
+  };
+
+  const cancelDeleteHandler = () => {
+    setShowConfirmedModal(false);
+  };
+
+  const confirmDeleteHandler = () => {
+    setShowConfirmedModal(false)
+    console.log("DELETING...");
+  };
+
   const openMapHandler = () => setShowMap(true);
   const closeMapHandler = () => setShowMap(false);
   return (
@@ -25,6 +40,20 @@ const PlaceItem = (props) => {
           <h2>The Map</h2>
         </div>
       </Modal>
+      <Modal
+        show={showConfirmedModal}
+        onCancel={cancelDeleteHandler}
+        header="Are you sure?"
+        footerClass="place-item_modal-actions"
+        footer={
+          <React.Fragment>
+            <Button inverse onClick={cancelDeleteHandler}>CANCEL</Button>
+            <Button danger onClick={confirmDeleteHandler}>DELETE</Button>
+          </React.Fragment>
+        }
+      >
+        <p>Do you wnat to proceed and delete this place? Please note that it</p>
+      </Modal>
 
       <li className="place-item">
         <Card className="place-item__content">
@@ -37,9 +66,11 @@ const PlaceItem = (props) => {
             <p>{props.description}</p>
           </div>
           <div className="place-item__actions">
-            <Button inverse onClick={openMapHandler}>VIEW ON MAP</Button>
+            <Button inverse onClick={openMapHandler}>
+              VIEW ON MAP
+            </Button>
             <Button to={`places/${props.id}`}>EDIT</Button>
-            <Button danger>DELETE</Button>
+            <Button danger onClick={showDeletionWarningHandler}>DELETE</Button>
           </div>
         </Card>
       </li>
