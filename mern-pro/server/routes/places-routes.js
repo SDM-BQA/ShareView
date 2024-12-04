@@ -37,10 +37,10 @@ res.json({place})
 });
 
 // user place route
-router.get("/:uid",(req,res,next)=>{
+router.get("/user/:uid",(req,res,next)=>{
     console.log("GET Request in user place");
     const userId = req.params.uid;
-    const userPlaces = DUMMY_PLACES.find(u=>u.creator===userId)
-    res.json({userPlaces})  
+    const place = DUMMY_PLACES.find(p=>p.creator===userId)
+    res.json({place})  
 })
 module.exports = router;
