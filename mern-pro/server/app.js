@@ -5,6 +5,9 @@ const placesRoutes = require("./routes/places-routes");
 
 const app = express();
 
+
+app.use(bodyParser.json());
+
 // places Routes
 app.use("/api/places", placesRoutes); // => /api/places/...
 
@@ -16,6 +19,7 @@ app.use((error, req, res, next) => {
     res.status(error.code || 500);
     res.json({message: error.message||'An unknown error occur'})
 });
+
 
 app.listen(5000, () => {
   console.log("Listening on port 5000");
