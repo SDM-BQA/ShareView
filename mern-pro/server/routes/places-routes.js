@@ -8,7 +8,7 @@ const router = express.Router();
 router.get("/:pid", placeControllers.getPlaceById);
 
 // user place route
-router.get("/user/:uid", placeControllers.getplaceByUserId);
+router.get("/user/:uid", placeControllers.getplacesByUserId);
 
 // post 
 router.post('/', placeControllers.createPlace)
