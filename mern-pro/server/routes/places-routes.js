@@ -29,18 +29,34 @@ const DUMMY_PLACES = [
 
 // place route
 router.get("/:pid", (req, res, next) => {
-  console.log("GET Request in Places");
-  const placeId = req.params.pid; //{pid : p1}
-  const place = DUMMY_PLACES.find((p) => p.id === placeId);
-//   res.json({ message: "it works" });
-res.json({place})
+    console.log("GET Request in Places");
+    const placeId = req.params.pid; //{pid : p1}
+    const place = DUMMY_PLACES.find((p) => p.id === placeId);
+    //   res.json({ message: "it works" });
+    
+    //   two way of sending error
+  if (!place) {
+    const error = new Error('could not find place for the provided id')
+    error.message.code = 404;
+    throw error; 
+  }
+//   return for not write else
+  res.json({ place });
 });
 
 // user place route
-router.get("/user/:uid",(req,res,next)=>{
-    console.log("GET Request in user place");
-    const userId = req.params.uid;
-    const place = DUMMY_PLACES.find(p=>p.creator===userId)
-    res.json({place})  
-})
+router.get("/user/:uid", (req, res, next) => {
+  console.log("GET Request in user place");
+  const userId = req.params.uid;
+  const place = DUMMY_PLACES.find((p) => p.creator === userId);
+
+//   two way of sending error
+  if (!place) {
+    const error = new Error('could not find place for the provided user id')
+    error.message.code = 404;
+    return next(error)
+  }
+
+  res.json({ place });
+});
 module.exports = router;
