@@ -1,10 +1,46 @@
-const express = require('express')
+const express = require("express");
 
-const router = express.Router()
+const router = express.Router();
 
-router.get('/',(req,res,next)=>{
-    console.log('GET Request in Places');
-    res.json({message: "it works"})
+const DUMMY_PLACES = [
+  {
+    id: "p1",
+    title: "TajMahal",
+    description: "7th wonders of the world",
+    location: {
+      lat: 40.7484474,
+      lng: -73.9871516,
+    },
+    address: "agra, uttarpradesh,india",
+    creator: "u1",
+  },
+  {
+    id: "p2",
+    title: "Empire",
+    description: "7th wonders of the world",
+    location: {
+      lat: 40.7484474,
+      lng: -73.9871516,
+    },
+    address: "agra, uttarpradesh,india",
+    creator: "u1",
+  },
+];
+
+// place route
+router.get("/:pid", (req, res, next) => {
+  console.log("GET Request in Places");
+  const placeId = req.params.pid; //{pid : p1}
+  const place = DUMMY_PLACES.find((p) => p.id === placeId);
+//   res.json({ message: "it works" });
+res.json({place})
+});
+
+// user place route
+router.get("/:uid",(req,res,next)=>{
+    console.log("GET Request in user place");
+    const userId = req.params.uid;
+    const userPlaces = DUMMY_PLACES.find(u=>u.creator===userId)
+    res.json({userPlaces})  
 })
-
 module.exports = router;
