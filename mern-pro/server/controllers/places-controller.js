@@ -1,6 +1,6 @@
 const { v4: uuid } = require("uuid"); // Updated way to import uuid v4
 
-const {validationResult} = require('express-validator')
+const { validationResult } = require("express-validator");
 
 const HttpError = require("../models/http-error");
 
@@ -58,12 +58,11 @@ const getplacesByUserId = (req, res, next) => {
 };
 
 const createPlace = (req, res, next) => {
-  const errors = validationResult(req)
-  if(!errors.isEmpty()){
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
     console.log(errors);
-    
-    throw new HttpError('Invalid inputs passed, please check your data',422)
-    
+
+    throw new HttpError("Invalid inputs passed, please check your data", 422);
   }
   const { title, description, creator, address, coordinates } = req.body;
 
@@ -82,6 +81,13 @@ const createPlace = (req, res, next) => {
 
 // adding place
 const updatePlace = (req, res, next) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    console.log(errors);
+
+    throw new HttpError("Invalid inputs passed, please check your data", 422);
+  }
+
   const { title, description } = req.body;
   const placeId = req.params.pid;
 
@@ -98,6 +104,9 @@ const updatePlace = (req, res, next) => {
 // deleting place
 const deletePlace = (req, res, next) => {
   const placeId = req.params.pid;
+  if (!DUMMY_PLACES.find((p) => p.id === pid)) {
+    throw new HttpError("Could not find a place for that id", 404);
+  }
   DUMMY_PLACES = DUMMY_PLACES.filter((p) => p.id !== placeId);
 
   res.status(200).json({ message: "Deleted place" });
