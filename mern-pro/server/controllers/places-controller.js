@@ -8,7 +8,7 @@ const HttpError = require("../models/http-error");
 
 const Place = require("../models/place_modal");
 const User = require("../models/user_modal");
-const mongoose= require("mongoose");
+const mongoose = require("mongoose");
 
 // let DUMMY_PLACES = [
 //   {
@@ -89,7 +89,9 @@ const getplacesByUserId = async (req, res, next) => {
 const createPlace = async (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    return next(new HttpError("Invalid inputs passed, please check your data", 422));
+    return next(
+      new HttpError("Invalid inputs passed, please check your data", 422)
+    );
   }
 
   const { title, description, creator, address } = req.body;
@@ -109,7 +111,10 @@ const createPlace = async (req, res, next) => {
   try {
     user = await User.findById(creator); // Added await
   } catch (err) {
-    const error = new HttpError("Creating place failed, please try again.", 500);
+    const error = new HttpError(
+      "Creating place failed, please try again.",
+      500
+    );
     return next(error);
   }
 
@@ -128,13 +133,15 @@ const createPlace = async (req, res, next) => {
     await sess.commitTransaction(); // Commit the transaction
     sess.endSession(); // End the session
   } catch (err) {
-    const error = new HttpError("Creating place failed, please try again.", 500);
+    const error = new HttpError(
+      "Creating place failed, please try again.",
+      500
+    );
     return next(error);
   }
 
   res.status(201).json({ place: createdPlace.toObject({ getters: true }) });
 };
-
 
 // adding place
 const updatePlace = async (req, res, next) => {
@@ -186,11 +193,7 @@ const deletePlace = async (req, res, next) => {
   let place;
   try {
     // Fetch the place by ID
-    place = await Place.findById(placeId);
-    if (!place) {
-      const error = new HttpError("Could not find a place for that id.", 404);
-      return next(error);
-    }
+    place = await Place.findById(placeId).populate("creator");
   } catch (err) {
     console.error("Error fetching place:", err);
     const error = new HttpError(
@@ -200,10 +203,20 @@ const deletePlace = async (req, res, next) => {
     return next(error);
   }
 
+  if (!place) {
+    const error = new HttpError("Could not find a place for this id.", 404);
+    return next(error);
+  }
+
   try {
     // Remove the place
-    await place.deleteOne(); // Use deleteOne() for Mongoose >=6.0
-    console.log("Place deleted successfully:", place);
+
+    const sess = await mongoose.startSession();
+    sess.startTransaction();
+    await place.deleteOne({ session: sess }); // Use deleteOne() for Mongoose >=6.0
+    place.creator.places.pull(place);
+    await place.creator.save({ session: sess });
+    await sess.commitTransaction();
   } catch (err) {
     console.error("Error during deletion:", err);
     const error = new HttpError(
