@@ -4,34 +4,34 @@ const { validationResult } = require("express-validator");
 
 const HttpError = require("../models/http-error");
 
-const getCoordsForAddress = require("../util/location");
+// const getCoordsForAddress = require("../util/location");
 
 const Place = require("../models/place_modal");
 
-let DUMMY_PLACES = [
-  {
-    id: "p1",
-    title: "TajMahal",
-    description: "7th wonders of the world",
-    location: {
-      lat: 40.7484474,
-      lng: -73.9871516,
-    },
-    address: "agra, uttarpradesh, india",
-    creator: "u1",
-  },
-  {
-    id: "p2",
-    title: "Empire",
-    description: "7th wonders of the world",
-    location: {
-      lat: 40.7484474,
-      lng: -73.9871516,
-    },
-    address: "agra, uttarpradesh, india",
-    creator: "u1",
-  },
-];
+// let DUMMY_PLACES = [
+//   {
+//     id: "p1",
+//     title: "TajMahal",
+//     description: "7th wonders of the world",
+//     location: {
+//       lat: 40.7484474,
+//       lng: -73.9871516,
+//     },
+//     address: "agra, uttarpradesh, india",
+//     creator: "u1",
+//   },
+//   {
+//     id: "p2",
+//     title: "Empire",
+//     description: "7th wonders of the world",
+//     location: {
+//       lat: 40.7484474,
+//       lng: -73.9871516,
+//     },
+//     address: "agra, uttarpradesh, india",
+//     creator: "u1",
+//   },
+// ];
 
 const getPlaceById = async (req, res, next) => {
   console.log("GET Request in Places");
@@ -163,14 +163,41 @@ const updatePlace = async (req, res, next) => {
 };
 
 // deleting place
-const deletePlace = (req, res, next) => {
+const deletePlace = async (req, res, next) => {
   const placeId = req.params.pid;
-  if (!DUMMY_PLACES.find((p) => p.id === pid)) {
-    throw new HttpError("Could not find a place for that id", 404);
-  }
-  DUMMY_PLACES = DUMMY_PLACES.filter((p) => p.id !== placeId);
 
-  res.status(200).json({ message: "Deleted place" });
+  let place;
+  try {
+    // Fetch the place by ID
+    place = await Place.findById(placeId);
+    if (!place) {
+      const error = new HttpError("Could not find a place for that id.", 404);
+      return next(error);
+    }
+  } catch (err) {
+    console.error("Error fetching place:", err);
+    const error = new HttpError(
+      "Something went wrong, could not delete place.",
+      500
+    );
+    return next(error);
+  }
+
+  try {
+    // Remove the place
+    await place.deleteOne(); // Use deleteOne() for Mongoose >=6.0
+    console.log("Place deleted successfully:", place);
+  } catch (err) {
+    console.error("Error during deletion:", err);
+    const error = new HttpError(
+      "Something went wrong, could not delete place.",
+      500
+    );
+    return next(error);
+  }
+
+  // Send a success response
+  res.status(200).json({ message: "Place deleted successfully." });
 };
 
 exports.getPlaceById = getPlaceById;
