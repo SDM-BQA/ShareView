@@ -7,6 +7,8 @@ const HttpError = require("../models/http-error");
 // const getCoordsForAddress = require("../util/location");
 
 const Place = require("../models/place_modal");
+const User = require("../models/user_modal");
+const mongoose= require("mongoose");
 
 // let DUMMY_PLACES = [
 //   {
@@ -87,39 +89,52 @@ const getplacesByUserId = async (req, res, next) => {
 const createPlace = async (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    next(new HttpError("Invalid inputs passed, please check your data", 422));
+    return next(new HttpError("Invalid inputs passed, please check your data", 422));
   }
+
   const { title, description, creator, address } = req.body;
 
-  let coordinates = {
-    lat: 100,
-    lng: 100,
-  };
-  // try {
-  // coordinates = await getCoordsForAddress(address);
-  // } catch (error) {
-  //   return next(error);
-  // }
-
+  let coordinates = { lat: 100, lng: 100 }; // Hardcoded coordinates
   const createdPlace = new Place({
     title,
     description,
     address,
     location: coordinates,
-    image: "https://www.google.com",
+    image: "https://www.google.com", // Placeholder image
     creator,
   });
 
+  // Check if the user exists
+  let user;
   try {
-    await createdPlace.save();
+    user = await User.findById(creator); // Added await
   } catch (err) {
-    const error = new HttpError("creating place failed, please try again", 500);
+    const error = new HttpError("Creating place failed, please try again.", 500);
     return next(error);
   }
 
-  // DUMMY_PLACES.push(createdPlace); // Fixed typo (pushing `createdPlace`)
-  res.status(201).json({ place: createdPlace }); // Changed status to 201 for creation
+  if (!user) {
+    const error = new HttpError("Could not find user for provided id.", 404);
+    return next(error);
+  }
+
+  // Start a session and transaction
+  try {
+    const sess = await mongoose.startSession();
+    sess.startTransaction();
+    await createdPlace.save({ session: sess }); // Save the place in the transaction
+    user.places.push(createdPlace._id); // Push the place ID into the user's places array
+    await user.save({ session: sess }); // Save the updated user
+    await sess.commitTransaction(); // Commit the transaction
+    sess.endSession(); // End the session
+  } catch (err) {
+    const error = new HttpError("Creating place failed, please try again.", 500);
+    return next(error);
+  }
+
+  res.status(201).json({ place: createdPlace.toObject({ getters: true }) });
 };
+
 
 // adding place
 const updatePlace = async (req, res, next) => {
@@ -127,7 +142,9 @@ const updatePlace = async (req, res, next) => {
   if (!errors.isEmpty()) {
     console.log(errors);
 
-    return next(new HttpError("Invalid inputs passed, please check your data", 422));
+    return next(
+      new HttpError("Invalid inputs passed, please check your data", 422)
+    );
   }
 
   const { title, description } = req.body;
@@ -145,7 +162,7 @@ const updatePlace = async (req, res, next) => {
       500
     );
     return next(error);
-  } 
+  }
 
   place.title = title;
   place.description = description;
