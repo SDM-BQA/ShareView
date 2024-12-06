@@ -44,7 +44,7 @@ const signup = async (req, res, next) => {
     );
   }
 
-  const { name, email, password, places } = req.body;
+  const { name, email, password } = req.body;
 
   // Email already existed
   // const hasuser = DUMMY_USERS.find((u) => u.email === email);
@@ -70,7 +70,7 @@ const signup = async (req, res, next) => {
     email,
     image: "https://www.google.com",
     password,
-    places,
+    places:[],
   });
 
   // DUMMY_USERS.push(createdUser);
