@@ -4,7 +4,9 @@ const { validationResult } = require("express-validator");
 
 const HttpError = require("../models/http-error");
 
-const getCoordsForAddress = require('../util/location')
+const getCoordsForAddress = require("../util/location");
+
+const Place = require("../models/place_modal");
 
 let DUMMY_PLACES = [
   {
@@ -62,27 +64,41 @@ const getplacesByUserId = (req, res, next) => {
 const createPlace = async (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-     next (new HttpError("Invalid inputs passed, please check your data", 422));
+    next(new HttpError("Invalid inputs passed, please check your data", 422));
   }
   const { title, description, creator, address } = req.body;
 
-  let coordinates;
+  let coordinates = {
+    lat:100,
+    lng:100
+  };
+  // try {
+    // coordinates = await getCoordsForAddress(address);
+  // } catch (error) {
+  //   return next(error);
+  // }
+
+  const createdPlace = new Place({
+    title,
+    description,
+    address,
+    location: coordinates,
+    image: "https://www.google.com",
+    creator,
+  });
+
   try{
-    coordinates = await getCoordsForAddress(address)
-  }catch(error){
+    await createdPlace.save();
+
+  }catch(err){
+    const error = new HttpError(
+      'creating place failed, please try again',
+      500
+    )
     return next(error)
   }
 
-  const createdPlace = {
-    id: uuid(), // Generates a new UUID
-    title,
-    description,
-    location: coordinates,
-    address,
-    creator,
-  };
-
-  DUMMY_PLACES.push(createdPlace); // Fixed typo (pushing `createdPlace`)
+  // DUMMY_PLACES.push(createdPlace); // Fixed typo (pushing `createdPlace`)
   res.status(201).json({ place: createdPlace }); // Changed status to 201 for creation
 };
 
