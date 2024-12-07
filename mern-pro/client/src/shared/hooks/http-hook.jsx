@@ -1,48 +1,56 @@
-import { useEffect, useRef } from "react";
-import { useCallback, useState } from "react";
+import { useEffect, useRef, useCallback, useState } from "react";
 
 export const useHttpClient = () => {
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState();
+  const [error, setError] = useState(null);
 
-  const activeHttpRequests = useRef();
+  const activeHttpRequests = useRef([]);
 
   const sendRequest = useCallback(
     async (url, method = "GET", body = null, headers = {}) => {
       setIsLoading(true);
-      const httpAbortCtrll = new AbortController();
-      activeHttpRequests.current.push(httpAbortCtrll);
+      const httpAbortCtrl = new AbortController();
+      activeHttpRequests.current.push(httpAbortCtrl);
 
       try {
         const response = await fetch(url, {
           method,
           body,
           headers,
-          signal: httpAbortCtrll.signal,
+          signal: httpAbortCtrl.signal,
         });
         const responseData = await response.json();
 
+        // Clean up the AbortController once the request is completed
+        activeHttpRequests.current = activeHttpRequests.current.filter(
+          (reqCtrl) => reqCtrl !== httpAbortCtrl
+        );
+
         if (!response.ok) {
-          throw new Error(responseData.message);
+          throw new Error(responseData.message || "Request failed!");
         }
 
+        setIsLoading(false);
         return responseData;
       } catch (err) {
-        setError(err.message);
+        setError(err.message || "Something went wrong!");
+        setIsLoading(false);
+        throw err;
       }
-      setIsLoading(false);
     },
     []
   );
 
-  const clearError = () => {
+  const clearError = useCallback(() => {
     setError(null);
-  };
+  }, []);
 
-  useEffect(()=>{
-    return()=>{
-        activeHttpRequests.current.forEach(abortCtrl => abortCtrl.abort())
-    }
-  },[])
+  useEffect(() => {
+    return () => {
+      // Abort all active requests when the component unmounts
+      activeHttpRequests.current.forEach((abortCtrl) => abortCtrl.abort());
+    };
+  }, []);
+
   return { isLoading, error, sendRequest, clearError };
 };
