@@ -1,6 +1,7 @@
 const express = require("express");
 const bodyParser = require("body-parser");
-const url = "mongodb+srv://sdm:QylLr34vHGsSnEJu@cluster0.hr1g3.mongodb.net/mern?retryWrites=true&w=majority&appName=Cluster0"
+const url =
+  "mongodb+srv://sdm:QylLr34vHGsSnEJu@cluster0.hr1g3.mongodb.net/mern?retryWrites=true&w=majority&appName=Cluster0";
 
 // import mongoose
 const mongoose = require("mongoose");
@@ -11,8 +12,19 @@ const usersRoutes = require("./routes/users-routes");
 const HttpError = require("./models/http-error");
 
 const app = express();
-// 
+//
 app.use(bodyParser.json());
+
+// cors
+app.use((req, res, next) => {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader(
+    "Access-Control-Allow-Headers",
+    "Origin, X-Requested-With, Content-Type, Accept, Authorization"
+  );
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, PATCH, DELETE");
+  next();
+});
 
 // places Routes
 app.use("/api/places", placesRoutes); // => /api/places/...
@@ -38,13 +50,12 @@ app.use((error, req, res, next) => {
 // database connection
 
 mongoose
-    .connect(url)
-    .then(()=>{
-        app.listen(5000, () => {
-          console.log("Listening on port 5000");
-        });
-    })
-    .catch(err=>{
-        console.log(err);
+  .connect(url)
+  .then(() => {
+    app.listen(5000, () => {
+      console.log("Listening on port 5000");
     });
-
+  })
+  .catch((err) => {
+    console.log(err);
+  });
