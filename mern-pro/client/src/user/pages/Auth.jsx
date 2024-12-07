@@ -2,6 +2,8 @@ import "./Auth.css";
 import Card from "../../shared/UIElement/Card";
 import Input from "../../shared/FormElements/Input";
 import Button from "../../shared/FormElements/Button";
+import ErrorModal from "../../shared/UIElement/ErrorModal";
+import LoadingSpinner from "../../shared/UIElement/LoadingSpinner";
 import {
   VALIDATOR_EMAIL,
   VALIDATOR_MINLENGTH,
@@ -15,6 +17,8 @@ const Auth = () => {
   const auth = useContext(AuthContext);
 
   const [isLoginMode, setIsLoginMode] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState();
 
   const [formState, inputHandler, setFormData] = useForm(
     {
@@ -62,6 +66,7 @@ const Auth = () => {
     } else {
       // console.log(formState.inputs);
       try {
+        setIsLoading(true);
         const response = await fetch(`http://localhost:5000/api/users/signup`, {
           method: "POST",
           headers: {
@@ -73,18 +78,21 @@ const Auth = () => {
             password: formState.inputs.password.value,
           }),
         });
-        const responseData = await response.json()
+        const responseData = await response.json();
         console.log(responseData);
-        
+
+        setIsLoading(false);
+        auth.login();
       } catch (err) {
         console.log(err);
+        setError(err.message || "Something went wrong! Please Try Again");
       }
     }
-    auth.login();
   };
 
   return (
     <Card className="authentication">
+      {isLoading && <LoadingSpinner asOverlay/>}
       <h2>Login Required</h2>
       <hr />
       <form onSubmit={authSubmitHandler}>
