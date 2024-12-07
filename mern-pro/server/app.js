@@ -1,6 +1,6 @@
 const express = require("express");
 const bodyParser = require("body-parser");
-const url = "mongodb+srv://sdm:QylLr34vHGsSnEJu@cluster0.hr1g3.mongodb.net/places?retryWrites=true&w=majority&appName=Cluster0"
+const url = "mongodb+srv://sdm:QylLr34vHGsSnEJu@cluster0.hr1g3.mongodb.net/mern?retryWrites=true&w=majority&appName=Cluster0"
 
 // import mongoose
 const mongoose = require("mongoose");
