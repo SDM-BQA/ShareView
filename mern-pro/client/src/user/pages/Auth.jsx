@@ -79,18 +79,27 @@ const Auth = () => {
           }),
         });
         const responseData = await response.json();
-        console.log(responseData);
 
-        setIsLoading(false);
+        if(!response.ok){
+          throw new Error(responseData.message)
+        }
+        console.log(responseData);
         auth.login();
       } catch (err) {
         console.log(err);
+        setIsLoading(false);
         setError(err.message || "Something went wrong! Please Try Again");
       }
     }
   };
 
+  const errorHandler=()=>{
+    setError(null)
+  }
+
   return (
+    <>
+    <ErrorModal error={error} onClear={errorHandler}/>
     <Card className="authentication">
       {isLoading && <LoadingSpinner asOverlay/>}
       <h2>Login Required</h2>
@@ -133,6 +142,7 @@ const Auth = () => {
         SWITCH TO {isLoginMode ? "SIGNUP" : "LOGIN"}
       </Button>
     </Card>
+    </>
   );
 };
 
