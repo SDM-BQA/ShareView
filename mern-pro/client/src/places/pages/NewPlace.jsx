@@ -1,14 +1,22 @@
 import Input from "../../shared/FormElements/Input";
 import Button from "../../shared/FormElements/Button";
+import ErrorModal from "../../shared/UIElement/ErrorModal";
+import LoadingSpinner from "../../shared/UIElement/LoadingSpinner";
+import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
 import {
   VALIDATOR_REQUIRE,
   VALIDATOR_MINLENGTH,
 } from "../../shared/util/validators";
 import "./PlaceForm.css";
 import { useForm } from "../../shared/hooks/form-hook";
+import { useHttpClient } from "../../shared/hooks/http-hook";
+import { AuthContext } from "../../shared/context/auth-context";
+import { useContext } from "react";
 
 const NewPlace = () => {
-  
+  const auth = useContext(AuthContext);
+
+  const { isLoading, error, sendRequest, clearError } = useHttpClient();
   const [formState, inputHandler] = useForm(
     {
       title: {
@@ -23,18 +31,38 @@ const NewPlace = () => {
         value: "",
         isValid: false,
       },
-    },false
-  )
+    },
+    false
+  );
 
-
-  const placeSubmitHandeler = (event) => {
+  const history = useHistory()
+  const placeSubmitHandeler = async (event) => {
     event.preventDefault();
-    console.log(formState.inputs);
+    try {
+      await sendRequest(
+        "http://localhost:5000/api/places",
+        "POST",
+        JSON.stringify({
+          title: formState.inputs.title.value,
+          description: formState.inputs.description.value,
+          address: formState.inputs.address.value,
+          creator: auth.userId,
+        }),{
+          "Content-type": "application/json",
+        }
+      );
+      history.push('/')
+    } catch (err) {
+      console.log(err);
 
+    }
   };
 
   return (
+    <>
+    <ErrorModal error={error} onClear={clearError}/>
     <form className="place-form" onSubmit={placeSubmitHandeler}>
+      {isLoading && <LoadingSpinner asOverlay/>}
       <Input
         id="title"
         element="input"
@@ -64,6 +92,7 @@ const NewPlace = () => {
         ADD PLACE
       </Button>
     </form>
+    </>
   );
 };
 

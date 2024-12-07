@@ -12,16 +12,19 @@ import UserPlaces from "./places/pages/UserPlaces";
 import UpdatePlace from "./places/pages/UpdatePlace";
 import Auth from "./user/pages/Auth";
 import { AuthContext } from "./shared/context/auth-context";
-import React, { useCallback, useState } from "react";
+import { useCallback, useState } from "react";
 
 function App() {
   const [isLoggedIn, setisLoggedIn] = useState(false);
+  const [userId, setUserId] = useState(null);
 
-  const login = useCallback(() => {
+  const login = useCallback((uid) => {
     setisLoggedIn(true);
+    setUserId(uid);
   }, []);
   const logout = useCallback(() => {
     setisLoggedIn(false);
+    setUserId(null);
   }, []);
 
   let routes;
@@ -63,7 +66,12 @@ function App() {
 
   return (
     <AuthContext.Provider
-      value={{ isLoggedIn: isLoggedIn, login: login, logout: logout }}
+      value={{
+        isLoggedIn: isLoggedIn,
+        userId: userId,
+        login: login,
+        logout: logout,
+      }}
     >
       <Router>
         <MainNavigation />

@@ -15,22 +15,19 @@ const DUMMY_USERS = [
   },
 ];
 
-
 // getting users
 const getUsers = async (req, res, next) => {
   let users;
-try{
-  users =await User.find({},'-password');
+  try {
+    users = await User.find({}, "-password");
+  } catch (err) {
+    const error = new HttpError("Fetching users Failed, please try again", 500);
+    return next(error);
+  }
 
-}catch(err){
-  const error = new HttpError(
-    'Fetching users Failed, please try again',500
-  )
-  return next(error)
-}
-
-
-  res.status(200).json({ users: users.map(user=>user.toObject({getters:true})) });
+  res
+    .status(200)
+    .json({ users: users.map((user) => user.toObject({ getters: true })) });
 };
 
 // signup
@@ -70,7 +67,7 @@ const signup = async (req, res, next) => {
     email,
     image: "https://www.google.com",
     password,
-    places:[],
+    places: [],
   });
 
   // DUMMY_USERS.push(createdUser);
@@ -85,7 +82,7 @@ const signup = async (req, res, next) => {
 };
 
 // login
-const login =async (req, res, next) => {
+const login = async (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     console.log(errors);
@@ -104,21 +101,22 @@ const login =async (req, res, next) => {
     return next(error);
   }
 
-  try{
+  try {
     if (!existingUser || existingUser.password !== password) {
       throw new HttpError(
         "Could not identify user, credentials seem to be wrong",
         401
       );
     }
-  }catch(err){
+  } catch (err) {
     const error = new HttpError("Login Fail, please try again", 500);
     return next(error);
-    
   }
 
-
-  res.json({ message: "Logged in!" });
+  res.json({
+    message: "Logged in!",
+    user: existingUser.toObject({ getters: true }),
+  });
 };
 
 exports.getUsers = getUsers;
