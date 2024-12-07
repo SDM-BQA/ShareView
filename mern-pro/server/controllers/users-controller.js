@@ -26,7 +26,7 @@ try{
   const error = new HttpError(
     'Fetching users Failed, please try again',500
   )
-  return next(user)
+  return next(error)
 }
 
 
