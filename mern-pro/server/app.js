@@ -1,5 +1,7 @@
 const express = require("express");
 const bodyParser = require("body-parser");
+const fs = require('fs')
+const path = require('path')
 const url =
   "mongodb+srv://sdm:QylLr34vHGsSnEJu@cluster0.hr1g3.mongodb.net/mern?retryWrites=true&w=majority&appName=Cluster0";
 
@@ -14,6 +16,8 @@ const HttpError = require("./models/http-error");
 const app = express();
 //
 app.use(bodyParser.json());
+
+app.use('/uploads/images', express.static(path.join('uploads', 'images')))
 
 // cors
 app.use((req, res, next) => {
@@ -40,6 +44,13 @@ app.use((req, res, next) => {
 
 // error handle
 app.use((error, req, res, next) => {
+  if(req.file){
+    fs.unlink(req.file.path,()=>{
+      console.log(err);
+
+    })
+  }
+
   if (res.headerSent) {
     return next(error);
   }
